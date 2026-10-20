@@ -143,4 +143,25 @@ class post_service {
         // Registrar el evento despues de confirmar la transaccion.
         $event->trigger();
     }
+    
+    public static function create_post(string $content, int $format, string $type = 'post'): int {
+        global $USER, $DB;
+
+        if ($type === 'announcement') {
+            $context = \context_system::instance();
+            if (!has_capability('local/chuspasocial:postannouncement', $context)) {
+                throw new \required_capability_exception($context, 'local/chuspasocial:postannouncement', 'nopermissions', '');
+            }
+        }
+
+        $record = new \stdClass();
+        $record->userid = $USER->id;
+        $record->content = $content;
+        $record->format = $format;
+        $record->type = $type;
+        $record->timecreated = time();
+        $record->timemodified = time();
+
+        return $DB->insert_record('local_chuspasocial_post', $record);
+    }
 }

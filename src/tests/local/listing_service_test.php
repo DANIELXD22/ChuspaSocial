@@ -122,4 +122,83 @@ class listing_service_test extends advanced_testcase {
         $this->assertFalse($DB->record_exists('local_chuspasocial_listing', ['id' => $listing->id]));
         $this->assertFalse($DB->record_exists('local_chuspasocial_lstcourse', ['id' => $linkid]));
     }
+    /**
+     * Crea un anuncio de libro de prueba.
+     *
+     * @param string $title Título del libro.
+     * @param string $author Autor del libro.
+     * @return int Id del anuncio creado.
+     */
+    private function crear_anuncio(string $title, string $author): int {
+        global $DB;
+        $user = $this->getDataGenerator()->create_user();
+        return $DB->insert_record('local_chuspasocial_listing', (object) [
+            'userid' => $user->id,
+            'title' => $title,
+            'author' => $author,
+            'status' => 'available',
+            'timecreated' => time(),
+            'timemodified' => time(),
+        ]);
+    }
+
+    /**
+     * Busca por título.
+     *
+     * @covers \local_chuspasocial\local\listing_service::search
+     */
+    public function test_search_por_titulo(): void {
+        $id = $this->crear_anuncio('Cálculo I', 'Stewart');
+        $this->crear_anuncio('Física', 'Serway');
+
+        $result = listing_service::search('Cálculo', 0, 10);
+
+        $this->assertCount(1, $result);
+        $this->assertEquals($id, $result[0]->id);
+    }
+
+    /**
+     * Busca por autor.
+     *
+     * @covers \local_chuspasocial\local\listing_service::search
+     */
+    public function test_search_por_autor(): void {
+        $id = $this->crear_anuncio('Física', 'Serway');
+        $this->crear_anuncio('Cálculo I', 'Stewart');
+
+        $result = listing_service::search('Serway', 0, 10);
+
+        $this->assertCount(1, $result);
+        $this->assertEquals($id, $result[0]->id);
+    }
+
+    /**
+     * La búsqueda no distingue mayúsculas de minúsculas.
+     *
+     * @covers \local_chuspasocial\local\listing_service::search
+     */
+    public function test_search_ignora_mayusculas(): void {
+        $id = $this->crear_anuncio('Programación Web', 'Pérez');
+
+        $result = listing_service::search('PROGRAMACIÓN web', 0, 10);
+
+        $this->assertCount(1, $result);
+        $this->assertEquals($id, $result[0]->id);
+    }
+
+    /**
+     * Los caracteres especiales se buscan como texto normal.
+     *
+     * @covers \local_chuspasocial\local\listing_service::search
+     */
+    public function test_search_caracteres_especiales(): void {
+        $id = $this->crear_anuncio('100% Álgebra', 'Baldor');
+        $this->crear_anuncio('100 problemas', 'Gómez');
+
+        $result = listing_service::search('100%', 0, 10);
+
+        $this->assertCount(1, $result);
+        $this->assertEquals($id, $result[0]->id);
+    }
 }
+
