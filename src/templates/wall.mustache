@@ -19,11 +19,21 @@
 
     Wall template for local_chuspasocial.
 
+    Data attributes required for JS:
+    * data-action=load-more
+    * data-page
+
     Context variables required for this template:
-    * none
+    * nextpage - Number of the next page of posts to request.
 
     Example context (json):
-    {}
+    {
+        "nextpage": 1
+    }
 }}
 <div class="local_chuspasocial_wall" data-region="wall">
+    <button type="button" class="btn btn-secondary" data-action="load-more" data-page="{{nextpage}}"
+            aria-label="Cargar más">
+        Cargar más
+    </button>
 </div>
