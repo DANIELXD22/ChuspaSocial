@@ -99,3 +99,6 @@ $string['unlike'] = 'Unlike';
 $string['unfollow'] = 'Unfollow';
 $string['unfollowtag'] = 'Unfollow tag';
 $string['writecomment'] = 'Write a comment...';
+$string['newfollowersubject'] = 'New follower';
+$string['newfollowerbody'] = '{$a} started following you.';
+$string['newfollowersmall'] = 'New follower';
