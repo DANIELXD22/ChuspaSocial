@@ -208,7 +208,7 @@ El valor efectivo debe ser `5000` o superior.
 
 ### Error de extensiones de PHP faltantes
 
-**Síntoma**
+#### Síntoma
 
 Al ejecutar un comando de Composer (por ejemplo `composer install` o `composer diagnose`) aparece el mensaje:
 
@@ -220,11 +220,11 @@ In Factory.php line 656:
 
 El mensaje cambia según la extensión que falte, pero siempre indica su nombre.
 
-**Causa**
+#### Causa
 
 La extensión de PHP requerida no está instalada o está comentada (con `;` al inicio) en el archivo `php.ini`.
 
-**Cómo detectarlas**
+#### Cómo detectarlas
 
 1. Lista las extensiones cargadas:
 
@@ -248,7 +248,7 @@ La extensión de PHP requerida no está instalada o está comentada (con `;` al 
 
 Si la extensión no aparece en la lista, está deshabilitada o no instalada.
 
-**Solución**
+#### Solución
 
 1. Localiza el `php.ini` que usa PHP:
 
@@ -266,4 +266,3 @@ Si la extensión no aparece en la lista, está deshabilitada o no instalada.
 4. Verifica que ya aparece con `php -m`.
 
 En Linux, si la extensión no está instalada, instálala con el gestor de paquetes (por ejemplo `sudo apt install php-mbstring`).
-
