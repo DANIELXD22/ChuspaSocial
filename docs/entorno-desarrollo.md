@@ -59,7 +59,7 @@ antes de continuar.
    C:\xampp\mysql\bin\mysql.exe -u root -e "CREATE DATABASE moodle CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
 ```
 
-### 3. Clonar Moodle 4.5
+### 3. Clonacion del moodle
 
 ```powershell
 cd C:\xampp\htdocs
@@ -88,7 +88,7 @@ Test-Path C:\xampp\htdocs\moodle\local\chuspasocial\version.php
 
 Debe responder `True`. Si `New-Item` da error de permisos, abre PowerShell como administrador.
 
-### 5. Instalar Moodle
+### 5.  Moodle 4.5
 
 ```powershell
 cd C:\xampp\htdocs\moodle
@@ -157,7 +157,7 @@ Para volver atrás, detén MySQL, elimina `C:\xampp\mysql` y renombra `mysql_old
 | El plugin no aparece en Extensiones | El enlace apunta a otra carpeta | Comprobar que `local\chuspasocial\version.php` existe |
 | La instalación falla a medias | Error en el código del plugin | Corregirlo y reinstalar (ver abajo) |
 
-### Reinstalar desde cero
+### Iniciar de nuevo 
 
 Si la instalación falla, vacía la base de datos y los archivos antes de repetirla:
 
@@ -174,7 +174,198 @@ Después vuelve a ejecutar el paso 5.
 Si solo quieres probar el plugin sin desarrollar, instálalo desde un zip.
 Los pasos están en [`src/README.md`](../src/README.md).
 
-## Problemas comunes
+## Linux (Ubuntu)
+
+Esta sección está escrita para **Ubuntu 24.04 LTS** (también sirve en WSL con Ubuntu 24.04). Usa las siguientes versiones:
+
+| Componente | Versión |
+|------------|---------|
+| Ubuntu     | 24.04 LTS |
+| PHP        | 8.3 (Moodle 4.5 soporta de 8.1 a 8.3) |
+| MariaDB    | 10.11 |
+| Moodle     | 4.5 (`MOODLE_405_STABLE`) |
+
+> Todos los comandos se ejecutan en una terminal de Ubuntu. Reemplaza `/ruta/al/repo` por la ruta donde clonaste este repositorio, por ejemplo `~/proyectos/chuspasocial`.
+
+> **WSL:** instala Ubuntu 24.04 con `wsl --install -d Ubuntu-24.04` y entra con `wsl -d Ubuntu-24.04`. No uses `Ubuntu` a secas: instala la última versión (26.04), que trae PHP 8.5, no soportado por Moodle 4.5. Si tu repositorio está en el disco de Windows, la ruta es `/mnt/c/Users/TU_USUARIO/...`.
+
+### 1. Instalar PHP y sus extensiones (Ubuntu)
+
+```bash
+sudo apt update
+sudo apt install -y git unzip php php-cli php-curl php-gd php-intl \
+  php-mbstring php-xml php-zip php-soap php-mysql
+```
+
+Comprueba la versión instalada:
+
+```bash
+php -v
+```
+
+Debe mostrar PHP 8.3.x.
+
+Moodle exige que `max_input_vars` sea al menos 5000. Configúralo en el `php.ini` de CLI (el que usa el servidor integrado de PHP):
+
+```bash
+sudo sed -i 's/^;\?\s*max_input_vars\s*=.*/max_input_vars = 5000/' /etc/php/8.3/cli/php.ini
+```
+
+Verifica que el cambio se aplicó:
+
+```bash
+php -i | grep max_input_vars
+```
+
+Debe mostrar `max_input_vars => 5000 => 5000`.
+
+### 2. Instalar y configurar la base de datos (Ubuntu)
+
+Instala MariaDB y asegúrate de que el servicio esté activo:
+
+```bash
+sudo apt install -y mariadb-server
+sudo systemctl enable --now mariadb
+```
+
+> En WSL sin systemd, si aparece el error `System has not been booted with systemd`, inicia el servicio con `sudo service mariadb start`.
+
+Entra a la consola de MariaDB:
+
+```bash
+sudo mariadb
+```
+
+Crea la base de datos y el usuario de Moodle (cambia la contraseña por una propia):
+
+```sql
+CREATE DATABASE moodle DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE USER 'moodleuser'@'localhost' IDENTIFIED BY 'cambia_esta_clave';
+GRANT ALL PRIVILEGES ON moodle.* TO 'moodleuser'@'localhost';
+FLUSH PRIVILEGES;
+EXIT;
+```
+
+Comprueba que el usuario puede conectarse:
+
+```bash
+mariadb -u moodleuser -p moodle -e "SELECT 1;"
+```
+
+Debe pedir la contraseña y mostrar una tabla con un `1`.
+
+### 3. Clonar Moodle 4.5 (Ubuntu)
+
+Clona solo la rama estable 4.5 (sin historial completo, para que sea más rápido):
+
+```bash
+cd ~
+git clone --depth 1 -b MOODLE_405_STABLE https://github.com/moodle/moodle.git
+```
+
+Crea la carpeta de datos de Moodle (`moodledata`), que debe estar **fuera** del directorio de Moodle:
+
+```bash
+mkdir -p ~/moodledata
+chmod 770 ~/moodledata
+```
+
+### 4. Enlazar el plugin en `local/chuspasocial` (Ubuntu)
+
+Crea el enlace simbólico desde Moodle hacia el código del plugin:
+
+```bash
+ln -s /ruta/al/repo/src ~/moodle/local/chuspasocial
+```
+
+Comprueba que el enlace apunta al lugar correcto:
+
+```bash
+ls -l ~/moodle/local/chuspasocial
+```
+
+La salida debe mostrar `chuspasocial -> /ruta/al/repo/src`. Además, `src/` debe contener el archivo `version.php` en su raíz, porque Moodle lo usa para reconocer el plugin:
+
+```bash
+ls ~/moodle/local/chuspasocial/version.php
+```
+
+### 5. Instalar Moodle (Ubuntu)
+
+Ejecuta el instalador por línea de comandos desde la carpeta de Moodle. Como el enlace del paso anterior ya existe, el plugin se instala junto con Moodle.
+
+```bash
+cd ~/moodle
+php admin/cli/install.php \
+  --lang=es \
+  --wwwroot=http://localhost:8000 \
+  --dataroot="$HOME/moodledata" \
+  --dbtype=mariadb \
+  --dbhost=localhost \
+  --dbname=moodle \
+  --dbuser=moodleuser \
+  --dbpass='cambia_esta_clave' \
+  --fullname="Moodle Dev" \
+  --shortname="dev" \
+  --adminuser=admin \
+  --adminpass='Admin123!' \
+  --agree-license \
+  --non-interactive
+```
+
+Al terminar se crea el archivo `~/moodle/config.php`. Los datos de acceso del administrador son los que indicaste en `--adminuser` y `--adminpass`.
+
+### 6. Levantar el servidor y verificar (Ubuntu)
+
+Inicia el servidor integrado de PHP desde la carpeta de Moodle:
+
+```bash
+cd ~/moodle
+php -S localhost:8000
+```
+
+Abre <http://localhost:8000> en el navegador e inicia sesión con el usuario administrador. Luego verifica que el plugin quedó instalado en **Administración del sitio > Plugins > Resumen de plugins** (busca `chuspasocial`).
+
+Para detener el servidor, presiona `Ctrl + C` en la terminal.
+
+### Actualizar el plugin después de cambios (Ubuntu)
+
+Si modificas el archivo `version.php` o agregas cambios de base de datos en `src/`, aplica la actualización con:
+
+```bash
+cd ~/moodle
+php admin/cli/upgrade.php --non-interactive
+```
+
+### Problemas frecuentes en Ubuntu
+
+**`Fatal error: Class "..." not found` o extensión faltante.** Falta una extensión de PHP. Revisa el paso 1 y vuelve a ejecutar el `apt install`.
+
+**`Database connection failed`.** Verifica usuario, contraseña y nombre de la base de datos con el comando de prueba del paso 2.
+
+**`The moodledata directory is not writable`.** Asegura que tu usuario es dueño de la carpeta y tiene permisos de escritura:
+
+```bash
+sudo chown -R "$USER":"$USER" ~/moodledata
+chmod 770 ~/moodledata
+```
+
+**El plugin no aparece en Moodle.** Comprueba que el enlace simbólico apunta a `src/` (paso 4) y que `version.php` está en la raíz de `src/`.
+
+**La instalación falla a medias con un error de sintaxis (`ParseError`).** Hay un error en el código del plugin. Actualiza tu rama con los últimos cambios de `dev`, o corrige el archivo que indica el error, y reinstala desde cero (ver abajo).
+
+**El puerto 8000 está ocupado.** Usa otro puerto, por ejemplo 8080, y cambia también `--wwwroot` (o `$CFG->wwwroot` en `~/moodle/config.php`) para que coincida.
+
+### Reinstalar desde cero en Ubuntu
+
+Si necesitas repetir la instalación, elimina la base de datos, los datos de Moodle y el `config.php`, y vuelve al paso 2:
+
+```bash
+sudo mariadb -e "DROP DATABASE moodle;"
+rm -rf ~/moodledata/*
+rm ~/moodle/config.php
+```        
+## Problemas frecuentes en Ubuntu
 
 ### Error `max_input_vars`
 
