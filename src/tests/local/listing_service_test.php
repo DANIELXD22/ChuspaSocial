@@ -345,5 +345,72 @@ class listing_service_test extends advanced_testcase {
         $this->assertCount(1, $result);
         $this->assertEquals($listingid, $result[0]->id);
     }
+    /**
+     * El autor puede actualizar su anuncio.
+     *
+     * @covers \local_chuspasocial\local\listing_service::update_listing
+     */
+    public function test_update_listing_as_author(): void {
+        global $DB;
+
+        $listingid = $this->crear_anuncio('Titulo original', 'Autor de prueba');
+        $authorid = $DB->get_field(
+            'local_chuspasocial_listing',
+            'userid',
+            ['id' => $listingid],
+            MUST_EXIST
+        );
+        $this->setUser((int) $authorid);
+
+        $updated = listing_service::update_listing(
+            $listingid,
+            (object) ['title' => 'Titulo actualizado']
+        );
+
+        $this->assertSame('Titulo actualizado', $updated->get('title'));
+        $this->assertSame(
+            'Titulo actualizado',
+            $DB->get_field(
+                'local_chuspasocial_listing',
+                'title',
+                ['id' => $listingid],
+                MUST_EXIST
+            )
+        );
+    }
+
+    /**
+     * Otro usuario no puede actualizar un anuncio ajeno.
+     *
+     * @covers \local_chuspasocial\local\listing_service::update_listing
+     */
+    public function test_update_listing_as_other_user(): void {
+        global $DB;
+
+        $listingid = $this->crear_anuncio('Titulo original', 'Autor de prueba');
+        $otheruser = $this->getDataGenerator()->create_user();
+        $this->setUser($otheruser);
+
+        try {
+            listing_service::update_listing(
+                $listingid,
+                (object) ['title' => 'Cambio no permitido']
+            );
+            $this->fail('Se esperaba una excepcion de permisos.');
+        } catch (\moodle_exception $exception) {
+            $this->assertSame('nopermissions', $exception->errorcode);
+        }
+
+        $this->assertSame(
+            'Titulo original',
+            $DB->get_field(
+                'local_chuspasocial_listing',
+                'title',
+                ['id' => $listingid],
+                MUST_EXIST
+            )
+        );
+    }
+
 }
 
