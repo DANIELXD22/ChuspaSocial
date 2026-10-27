@@ -260,4 +260,85 @@ class post_service_test extends advanced_testcase {
         $this->assertTrue(get_file_storage()->is_area_empty($context->id, 'local_chuspasocial', 'post', $postid));
         $this->assertEmpty(\core_tag_tag::get_item_tags('local_chuspasocial', 'local_chuspasocial_post', $postid));
     }
+
+    /**
+     * The author can edit their own post and the content gets updated.
+     *
+     * @covers \local_chuspasocial\local\post_service::update_post
+     */
+    public function test_update_post_by_author(): void {
+        global $DB;
+
+        $generator = $this->getDataGenerator();
+        $course = $generator->create_course();
+        $author = $generator->create_user();
+        $generator->enrol_user($author->id, $course->id, 'student');
+        $postid = $this->create_test_post($author->id, $course->id);
+
+        $this->setUser($author);
+        post_service::update_post($postid, 'Contenido editado', FORMAT_PLAIN);
+
+        $post = $DB->get_record('local_chuspasocial_post', ['id' => $postid]);
+        $this->assertEquals('Contenido editado', $post->content);
+        $this->assertEquals(FORMAT_PLAIN, $post->contentformat);
+    }
+
+    /**
+     * Another user who is not the author cannot edit the post.
+     *
+     * @covers \local_chuspasocial\local\post_service::update_post
+     */
+    public function test_update_post_by_other_user_throws_exception(): void {
+        global $DB;
+
+        $generator = $this->getDataGenerator();
+        $course = $generator->create_course();
+        $author = $generator->create_user();
+        $other = $generator->create_user();
+        $generator->enrol_user($author->id, $course->id, 'student');
+        $generator->enrol_user($other->id, $course->id, 'student');
+        $postid = $this->create_test_post($author->id, $course->id);
+
+        $this->setUser($other);
+        try {
+            post_service::update_post($postid, 'Contenido ajeno', FORMAT_PLAIN);
+            $this->fail('Expected moodle_exception was not thrown.');
+        } catch (\moodle_exception $e) {
+            $this->assertEquals('cannotupdatepost', $e->errorcode);
+        }
+
+        $post = $DB->get_record('local_chuspasocial_post', ['id' => $postid]);
+        $this->assertEquals('Test post', $post->content);
+    }
+
+    /**
+     * Editing a post updates its timemodified timestamp.
+     *
+     * @covers \local_chuspasocial\local\post_service::update_post
+     */
+    public function test_update_post_updates_timemodified(): void {
+        global $DB;
+
+        $generator = $this->getDataGenerator();
+        $course = $generator->create_course();
+        $author = $generator->create_user();
+        $generator->enrol_user($author->id, $course->id, 'student');
+        $oldtime = time() - 10;
+        $postid = (int) $DB->insert_record('local_chuspasocial_post', (object) [
+            'userid' => $author->id,
+            'courseid' => $course->id,
+            'type' => 'post',
+            'content' => 'Test post',
+            'contentformat' => FORMAT_HTML,
+            'hidden' => 0,
+            'timecreated' => $oldtime,
+            'timemodified' => $oldtime,
+        ]);
+
+        $this->setUser($author);
+        post_service::update_post($postid, 'Contenido editado', FORMAT_PLAIN);
+
+        $post = $DB->get_record('local_chuspasocial_post', ['id' => $postid]);
+        $this->assertGreaterThan($oldtime, $post->timemodified);
+    }
 }
