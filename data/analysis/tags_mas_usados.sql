@@ -26,6 +26,16 @@
 --   desfasarse unos dias respecto al calendario.
 --
 -- Solo devuelve datos agregados; no expone datos personales.
+--
+-- LIMIT configurable:
+--   La consulta no trae LIMIT por defecto: devuelve todas las etiquetas
+--   con uso en el periodo. Para quedarse solo con las mas usadas de cada
+--   mes, agregar un LIMIT total (no es LIMIT por grupo) despues del
+--   ORDER BY, por ejemplo:
+--     LIMIT 10   -- panel o reporte breve (top 10 general).
+--     LIMIT 50   -- analisis mas detallado por mes.
+--   Sin LIMIT, para limitar el total de filas desde la aplicacion, usar
+--   paginacion con OFFSET.
 -- =========================================================
 
 SELECT
@@ -47,7 +57,9 @@ GROUP BY
     t.name
 ORDER BY
     FLOOR(p.timecreated / 2629800),
-    total_usos DESC;
+    total_usos DESC
+-- LIMIT 10   -- descomentar y ajustar segun el uso (ver LIMIT configurable arriba).
+;
 
 /*
 =========================================

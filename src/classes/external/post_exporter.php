@@ -37,6 +37,11 @@ use user_picture;
  * Related data:
  * - context: the context of the post, used to format the content and to find its images.
  * - author: the user record of the author of the post.
+ * - reactions: number of reactions of the post.
+ * - hasreacted: whether the current user has reacted to the post.
+ *
+ * The reactions and hasreacted values must be calculated before, in batch
+ * for all the posts of the page, so the exporter does not run one query per post.
  *
  * @package    local_chuspasocial
  */
@@ -81,6 +86,8 @@ class post_exporter extends exporter {
         return [
             'context' => 'context',
             'author' => '\\stdClass',
+            'reactions' => 'int',
+            'hasreacted' => 'bool',
         ];
     }
 
@@ -135,6 +142,14 @@ class post_exporter extends exporter {
                 'multiple' => true,
                 'description' => 'Tags of the post.',
             ],
+            'reactions' => [
+                'type' => PARAM_INT,
+                'description' => 'Number of reactions of the post.',
+            ],
+            'hasreacted' => [
+                'type' => PARAM_BOOL,
+                'description' => 'Whether the current user has reacted to the post.',
+            ],
         ];
     }
 
@@ -165,6 +180,8 @@ class post_exporter extends exporter {
             'candelete' => $isauthor || $ismoderator,
             'images' => $this->get_images(),
             'tags' => $this->get_tags(),
+            'reactions' => $this->related['reactions'],
+            'hasreacted' => $this->related['hasreacted'],
         ];
     }
 
