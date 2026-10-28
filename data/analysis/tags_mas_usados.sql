@@ -11,6 +11,23 @@
 --   local_chuspasocial_post.id identifica cada publicacion
 --   local_chuspasocial_post.timecreated almacena su fecha
 --
+-- Portabilidad (PostgreSQL, MySQL y MariaDB):
+--   No se usan funciones de fecha propias de un motor. El mes se
+--   calcula a partir del timestamp Unix como un indice de mes:
+--     mes_indice = FLOOR(p.timecreated / 2629800)
+--   donde 2629800 es la duracion promedio de un mes en segundos
+--   (365.25 dias / 12). El indice cuenta periodos desde 1970.
+--
+--   Como obtener anio y mes a partir del indice (en la aplicacion):
+--     inicio_periodo = mes_indice * 2629800   (timestamp Unix, UTC)
+--   y formatear ese timestamp como fecha. Cada indice es un periodo de
+--   2629800 s (30,4375 dias), no un mes de calendario, por lo que el
+--   resultado es aproximado. Para asignar el periodo a un mes de
+--   calendario, usar su punto medio:
+--     fecha_referencia = (mes_indice + 0.5) * 2629800
+--   Ejemplo: mes_indice 678 comienza el 2 de julio de 2026 (UTC) y
+--   llega hasta el 2 de agosto; su punto medio cae el 17 de julio.
+--
 -- Tablas del nucleo de Moodle utilizadas:
 --   tag_instance: asocia una etiqueta con el elemento etiquetado.
 --     tagid     -> tag.id de la etiqueta.
@@ -35,8 +52,7 @@
 -- =========================================================
 
 SELECT
-    EXTRACT(YEAR FROM TO_TIMESTAMP(p.timecreated)) AS anio,
-    EXTRACT(MONTH FROM TO_TIMESTAMP(p.timecreated)) AS mes,
+    FLOOR(p.timecreated / 2629800) AS mes_indice,
     t.id AS tagid,
     t.name AS tag,
     COUNT(*) AS total_usos
@@ -49,13 +65,11 @@ WHERE
     ti.component = 'local_chuspasocial'
     AND ti.itemtype = 'local_chuspasocial_post'
 GROUP BY
-    EXTRACT(YEAR FROM TO_TIMESTAMP(p.timecreated)),
-    EXTRACT(MONTH FROM TO_TIMESTAMP(p.timecreated)),
+    FLOOR(p.timecreated / 2629800),
     t.id,
     t.name
 ORDER BY
-    anio,
-    mes,
+    FLOOR(p.timecreated / 2629800),
     total_usos DESC
 -- LIMIT 10   -- descomentar y ajustar segun el uso (ver LIMIT configurable arriba).
 ;
@@ -64,12 +78,13 @@ ORDER BY
 =========================================
 EJEMPLO DE RESULTADO (datos ficticios)
 =========================================
-anio | mes | tagid | tag          | total_usos
+mes_indice | tagid | tag        | total_usos
 -----------------------------------------------
-2026 | 7   | 3     | literatura   | 18
-2026 | 7   | 5     | novela       | 12
-2026 | 8   | 3     | literatura   | 24
-2026 | 8   | 8     | ciencia      | 15
-2026 | 9   | 5     | novela       | 20
+678        | 3     | literatura | 18
+678        | 5     | novela     | 12
+679        | 3     | literatura | 24
+679        | 8     | ciencia    | 15
+680        | 5     | novela     | 20
+(678 ~ julio 2026, 679 ~ agosto 2026, 680 ~ septiembre 2026; ver conversion arriba)
 =========================================
 */
