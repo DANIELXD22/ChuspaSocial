@@ -358,10 +358,11 @@ chmod 770 ~/moodledata
 
 ### Reinstalar desde cero en Ubuntu
 
-Si necesitas repetir la instalación, elimina la base de datos, los datos de Moodle y el `config.php`, y vuelve al paso 2:
+Si necesitas repetir la instalación, elimina la base de datos, los datos de Moodle y el `config.php`, y vuelve al paso 5:
 
 ```bash
 sudo mariadb -e "DROP DATABASE moodle;"
+sudo mariadb -e "CREATE DATABASE moodle DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
 rm -rf ~/moodledata/*
 rm ~/moodle/config.php
 ```        
