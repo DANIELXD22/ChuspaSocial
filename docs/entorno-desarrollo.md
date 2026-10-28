@@ -206,6 +206,66 @@ La directiva `max_input_vars` de PHP está configurada con un valor menor que `5
 
 El valor efectivo debe ser `5000` o superior.
 
+### Error de extensiones de PHP faltantes
+
+#### Síntoma
+
+Al ejecutar un comando de Composer (por ejemplo `composer install` o `composer diagnose`) aparece el mensaje:
+
+```text
+In Factory.php line 656:
+
+  The openssl extension is required for SSL/TLS protection but is not available. If you can not enable the openssl extension, you can disable this error, at your own risk, by setting the 'disable-tls' option to true.
+```
+
+El mensaje cambia según la extensión que falte, pero siempre indica su nombre.
+
+#### Causa
+
+La extensión de PHP requerida no está instalada o está comentada (con `;` al inicio) en el archivo `php.ini`.
+
+#### Cómo detectarlas
+
+1. Lista las extensiones cargadas:
+
+   ```bash
+   php -m
+   ```
+
+2. Busca una en concreto:
+
+   ```bash
+   php -m | grep -i openssl
+   ```
+
+   En Windows (CMD) usa `php -m | findstr /i openssl`.
+
+3. Comprueba qué extensiones exige el proyecto:
+
+   ```bash
+   composer check-platform-reqs
+   ```
+
+Si la extensión no aparece en la lista, está deshabilitada o no instalada.
+
+#### Solución
+
+1. Localiza el `php.ini` que usa PHP:
+
+   ```bash
+   php --ini
+   ```
+
+2. Ábrelo y quita el `;` del inicio de la línea de la extensión:
+
+   ```ini
+   extension=openssl
+   ```
+
+3. Guarda el archivo y abre una terminal nueva para aplicar el cambio.
+4. Verifica que ya aparece con `php -m`.
+
+En Linux, si la extensión no está instalada, instálala con el gestor de paquetes (por ejemplo `sudo apt install php-mbstring`).
 ### Error `dataroot not writable`
 
 #### Síntoma
