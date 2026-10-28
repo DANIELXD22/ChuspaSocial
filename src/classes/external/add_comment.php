@@ -71,7 +71,7 @@ class add_comment extends external_api {
         $post = $DB->get_record(
             'local_chuspasocial_post',
             ['id' => $params['postid']],
-            'id, courseid',
+            'id, courseid, hidden',
             MUST_EXIST
         );
 
@@ -83,6 +83,11 @@ class add_comment extends external_api {
 
         self::validate_context($context);
         require_capability('local/chuspasocial:comment', $context);
+
+        // Impedir comentar publicaciones ocultas.
+        if (!empty($post->hidden)) {
+            throw new \invalid_parameter_exception('Cannot comment on a hidden post');
+        }
 
         $comment = comment_service::add_comment(
             (int) $params['postid'],
