@@ -10,8 +10,12 @@
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle. If not, see <https://www.gnu.org/licenses/>.
+
 /**
- * Page to view a book listing, its external contact, and mark it as sold.
+ * Page to view a marketplace listing, its external contact, and mark it as sold.
  *
  * @package    local_chuspasocial
  * @copyright  2026 SIS-INF
@@ -44,6 +48,7 @@ $listing = $DB->get_record(
     MUST_EXIST
 );
 
+$seller = core_user::get_user($listing->userid, '*', MUST_EXIST);
 $PAGE->set_context($context);
 $PAGE->set_url($pageurl);
 $PAGE->set_pagelayout('standard');
@@ -78,6 +83,26 @@ if (data_submitted() && optional_param('markassold', 0, PARAM_BOOL)) {
 echo $OUTPUT->header();
 echo $OUTPUT->heading(format_string($listing->title));
 
+echo html_writer::tag(
+    'p',
+    get_string('authorname', 'moodle') . ': ' . s($listing->author)
+);
+
+echo html_writer::tag(
+    'p',
+    get_string('price', 'local_chuspasocial') . ': ' .
+        format_float((float) $listing->price, 2)
+);
+
+echo $OUTPUT->box(
+    format_text(
+        $listing->description ?? '',
+        $listing->descriptionformat,
+        ['context' => $context]
+    ),
+    'generalbox'
+);
+
 if (!empty($listing->externalcontact)) {
     echo html_writer::tag(
         'p',
@@ -87,6 +112,16 @@ if (!empty($listing->externalcontact)) {
     echo $OUTPUT->notification(
         'Este contacto es externo a la institución',
         \core\output\notification::NOTIFY_WARNING
+    );
+}
+
+// Show the contact button only to users other than the seller.
+if ((int) $listing->userid !== (int) $USER->id) {
+    $contacturl = new moodle_url('/message/index.php', ['id' => $seller->id]);
+    echo html_writer::link(
+        $contacturl,
+        get_string('contactseller', 'local_chuspasocial'),
+        ['class' => 'btn btn-primary']
     );
 }
 
