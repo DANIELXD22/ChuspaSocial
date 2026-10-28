@@ -16,14 +16,27 @@
 --   calcula a partir del timestamp Unix como un indice de mes:
 --     mes_indice = FLOOR(p.timecreated / 2629800)
 --   donde 2629800 es la duracion promedio de un mes en segundos
---   (365.25 dias / 12). El indice cuenta meses desde 1970.
+--   (365.25 dias / 12). El indice cuenta periodos desde 1970.
 --
 --   Como obtener anio y mes a partir del indice (en la aplicacion):
---     anio = 1970 + FLOOR(mes_indice / 12)
---     mes  = (mes_indice % 12) + 1
---   Ejemplo: mes_indice 678 -> anio 2026, mes 7.
---   Nota: al ser meses promedio, el limite entre meses puede
---   desfasarse unos dias respecto al calendario.
+--     inicio_periodo = mes_indice * 2629800   (timestamp Unix, UTC)
+--   y formatear ese timestamp como fecha. Cada indice es un periodo de
+--   2629800 s (30,4375 dias), no un mes de calendario, por lo que el
+--   resultado es aproximado. Para asignar el periodo a un mes de
+--   calendario, usar su punto medio:
+--     fecha_referencia = (mes_indice + 0.5) * 2629800
+--   Ejemplo: mes_indice 678 comienza el 2 de julio de 2026 (UTC) y
+--   llega hasta el 2 de agosto; su punto medio cae el 17 de julio.
+--
+-- Tablas del nucleo de Moodle utilizadas:
+--   tag_instance: asocia una etiqueta con el elemento etiquetado.
+--     tagid     -> tag.id de la etiqueta.
+--     itemid    -> id del elemento etiquetado (aqui, local_chuspasocial_post.id).
+--     component -> componente que creo la asociacion ('local_chuspasocial').
+--     itemtype  -> tipo de elemento etiquetado ('local_chuspasocial_post').
+--   tag: catalogo de etiquetas del sitio.
+--     id   -> identificador de la etiqueta (tagid de tag_instance).
+--     name -> nombre normalizado de la etiqueta, usado para agrupar y mostrar.
 --
 -- Solo devuelve datos agregados; no expone datos personales.
 --
@@ -72,6 +85,6 @@ mes_indice | tagid | tag        | total_usos
 679        | 3     | literatura | 24
 679        | 8     | ciencia    | 15
 680        | 5     | novela     | 20
-(678 = julio 2026, 679 = agosto 2026, 680 = septiembre 2026)
+(678 ~ julio 2026, 679 ~ agosto 2026, 680 ~ septiembre 2026; ver conversion arriba)
 =========================================
 */
