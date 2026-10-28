@@ -56,3 +56,4 @@ courseid | materia | semana_unix | total_publicaciones
 8        | LIN-111 | 2961        | 12
 (2962 = semana del 8 de oct 2026, 2961 = semana del 1 de oct 2026)
 =========
+*/
