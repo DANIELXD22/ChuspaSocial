@@ -176,7 +176,14 @@ class listing_service {
         if (!empty($data->photos)) {
             self::save_photos((int) $listing->get('id'), (int) $data->photos);
         }
-
+        
+        $event = \local_chuspasocial\event\listing_created::create([
+            'objectid' => (int) $listing->get('id'),
+            'context' => \context_system::instance(),
+            'userid' => (int) $USER->id,
+        ]);
+        $event->trigger();
+        
         return $listing;
     }
     /**
