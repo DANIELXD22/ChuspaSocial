@@ -102,6 +102,13 @@ jobs:
         run: moodle-plugin-ci phpdoc --max-warnings 0 ./plugin/src
         env:
           MOODLE_BRANCH: MOODLE_405_STABLE
+
+      - name: Validate plugin structure
+        if: ${{ !cancelled() }}
+        run: moodle-plugin-ci validate ./plugin/src
+        env:
+          MOODLE_BRANCH: MOODLE_405_STABLE
+
       - name: Validate upgrade savepoints
         if: ${{ !cancelled() }}
         run: moodle-plugin-ci savepoints ./plugin/src
