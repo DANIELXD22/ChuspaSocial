@@ -34,6 +34,7 @@
 |---|---|---|---|
 | RF-015 | Etiquetar una publicación | Alta | Pendiente |
 | RF-016 | Filtrar el muro por tag | Alta | Pendiente |
+| RF-017 | Seguir un tag | Media | Pendiente |
 
 ### Seguidores
 
@@ -260,6 +261,23 @@
 - **Dado** que el muro se encuentra filtrado por una etiqueta específica,
 - **Cuando** el usuario decida limpiar el filtro o hacer clic en la opción de restablecer el muro,
 - **Entonces** el sistema deberá mostrar nuevamente todas las publicaciones disponibles sin ningún tipo de filtro.
+
+##### RF-017 - Seguir un tag
+
+**Criterio 1**
+- **Dado** un usuario autenticado que visualiza una etiqueta (tag) en una publicación o en el muro filtrado por esa etiqueta,
+- **Cuando** presiona la opción "Seguir tag",
+- **Entonces** el sistema registra que el usuario sigue ese tag y le muestra que ya lo está siguiendo.
+
+**Criterio 2**
+- **Dado** un usuario que sigue un tag,
+- **Cuando** accede a su feed personalizado,
+- **Entonces** ve las publicaciones etiquetadas con ese tag, junto con las de los usuarios que sigue, ordenadas por fecha.
+
+**Criterio 3**
+- **Dado** un usuario que sigue un tag,
+- **Cuando** presiona la opción "Dejar de seguir",
+- **Entonces** el sistema elimina el seguimiento y las nuevas publicaciones con ese tag dejan de aparecer en su feed personalizado.
 
 #### Seguidores
 
