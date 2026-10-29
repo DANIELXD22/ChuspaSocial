@@ -1,4 +1,4 @@
-# Entorno de desarrollo
+ Entorno de desarrollo
 
 ## Windows con XAMPP
 
@@ -59,7 +59,7 @@ antes de continuar.
    C:\xampp\mysql\bin\mysql.exe -u root -e "CREATE DATABASE moodle CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
 ```
 
-### 3. Clonacion del moodle
+### 3. Clonar Moodle 4.5
 
 ```powershell
 cd C:\xampp\htdocs
@@ -88,7 +88,7 @@ Test-Path C:\xampp\htdocs\moodle\local\chuspasocial\version.php
 
 Debe responder `True`. Si `New-Item` da error de permisos, abre PowerShell como administrador.
 
-### 5.  Moodle 4.5
+### 5. Instalar Moodle
 
 ```powershell
 cd C:\xampp\htdocs\moodle
@@ -157,7 +157,7 @@ Para volver atrás, detén MySQL, elimina `C:\xampp\mysql` y renombra `mysql_old
 | El plugin no aparece en Extensiones | El enlace apunta a otra carpeta | Comprobar que `local\chuspasocial\version.php` existe |
 | La instalación falla a medias | Error en el código del plugin | Corregirlo y reinstalar (ver abajo) |
 
-### Iniciar de nuevo 
+### Reinstalar desde cero
 
 Si la instalación falla, vacía la base de datos y los archivos antes de repetirla:
 
@@ -365,8 +365,9 @@ sudo mariadb -e "DROP DATABASE moodle;"
 sudo mariadb -e "CREATE DATABASE moodle DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
 rm -rf ~/moodledata/*
 rm ~/moodle/config.php
-```        
-## Problemas frecuentes en Ubuntu
+```
+
+## Problemas comunes
 
 ### Error `max_input_vars`
 
