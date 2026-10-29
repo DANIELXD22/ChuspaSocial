@@ -61,3 +61,26 @@
 - Falta de un espacio centralizado dentro de la comunidad universitaria dedicado a la compraventa de material académico.
 
 **Cómo usa ChuspaSocial:** Accede a la sección de Marketplace de libros para publicar sus textos usados (título, precio, estado y materia asociada) y contactar directamente a los compradores interesados dentro de la plataforma.
+
+## Administrador de Moodle
+
+**Nombre:** Administrador de Moodle
+
+**Rol:** Administrador del sitio Moodle de la institución, responsable de configurar el plugin ChuspaSocial y moderar el contenido reportado.
+
+**Contexto:** Gestiona la plataforma Moodle de la universidad y debe mantener un espacio social seguro para estudiantes y docentes. Los usuarios reportan publicaciones, comentarios y anuncios de libros, y él decide qué hacer con ellos. Dispone de poco tiempo para moderar, así que necesita ver los reportes en un solo lugar y configurar el plugin sin tocar código.
+
+**Objetivos:**
+- Revisar la cola de reportes con los motivos indicados por los usuarios.
+- Ocultar el contenido reportado que incumpla las normas para que deje de mostrarse.
+- Configurar los límites del muro: longitud de las publicaciones, imágenes por publicación y publicaciones por página.
+- Activar o desactivar el Marketplace según las necesidades de la institución.
+- Publicar anuncios institucionales en el muro general.
+
+**Frustraciones:**
+- No saber qué contenido fue reportado ni por qué motivo.
+- Tener que revisar publicaciones, comentarios y anuncios de libros en lugares distintos.
+- Que el contenido inapropiado siga visible mientras espera ser revisado.
+- Depender de cambios en el código para ajustar el comportamiento del plugin.
+
+**Cómo usa ChuspaSocial:** Revisa la cola de reportes y decide si oculta el contenido reportado. Desde el panel de Administración configura los límites del muro y activa o desactiva el Marketplace. También publica anuncios institucionales en el muro general.
