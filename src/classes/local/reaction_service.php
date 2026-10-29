@@ -87,7 +87,15 @@ class reaction_service {
             'type' => reaction::TYPE_LIKE,
             'timecreated' => time(),
         ];
-        $DB->insert_record('local_chuspasocial_reaction', $record);
+        $reactionid = $DB->insert_record('local_chuspasocial_reaction', $record);
+
+        // Trigger the reaction_added event once the reaction is saved.
+        \local_chuspasocial\event\reaction_added::create([
+            'objectid' => $reactionid,
+            'context' => $context,
+            'userid' => (int) $USER->id,
+            'other' => ['reactiontype' => $record->type],
+        ])->trigger();
 
         return true;
     }
