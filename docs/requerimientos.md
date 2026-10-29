@@ -12,6 +12,7 @@
 | RF-006 | Eliminar una publicación propia | Alta | Pendiente |
 | RF-007 | Ver el muro de una materia | Alta | Pendiente |
 | RF-008 | Cargar más publicaciones | Media | Pendiente |
+| RF-009 | Dar formato seguro al texto de una publicación (enlaces y negrita) | Alta | Pendiente |
 
 ### Comentarios
 
@@ -170,6 +171,23 @@
 - **Dado** que el usuario está en el módulo Muro,
 - **Cuando** ya se hayan cargado todas las publicaciones existentes en la base de datos,
 - **Entonces** el botón "Cargar más" deberá quedar oculto o deshabilitado.
+
+##### RF-009 - Dar formato seguro al texto de una publicación
+
+**Criterio 1**
+- **Dado** que el usuario está redactando una publicación en el muro,
+- **Cuando** aplica negrita a una parte del texto o agrega un enlace y publica,
+- **Entonces** la publicación se muestra con el texto en negrita y el enlace activo, que se puede abrir con un clic.
+
+**Criterio 2**
+- **Dado** que el contenido de una publicación incluye código HTML o JavaScript no permitido (por ejemplo, etiquetas `<script>` o atributos como `onclick`),
+- **Cuando** el usuario publica,
+- **Entonces** el sistema limpia ese contenido antes de guardarlo y mostrarlo, sin ejecutar ningún código, y conserva el texto y los formatos permitidos.
+
+**Criterio 3**
+- **Dado** que el usuario agrega un enlace con un esquema no seguro (por ejemplo, `javascript:`),
+- **Cuando** la publicación se muestra en el muro,
+- **Entonces** el sistema no lo presenta como un enlace activo.
 
 #### Comentarios
 
