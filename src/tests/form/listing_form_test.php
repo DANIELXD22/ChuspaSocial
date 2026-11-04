@@ -75,19 +75,16 @@ class listing_form_test extends advanced_testcase {
     }
 
     /**
-     * Un precio de cero devuelve error en price con la validacion actual.
-     *
-     * El issue pedia que '0' fuera valido, pero validation() rechaza los
-     * precios menores o iguales a cero. Esta prueba refleja ese comportamiento.
+     * Un precio de cero no devuelve error en price.
      */
-    public function test_validation_zero_price_returns_error(): void {
+    public function test_validation_zero_price_returns_no_error(): void {
         $this->resetAfterTest();
         $form = $this->create_form();
 
         $errors = $form->validation(['price' => '0'], []);
         $this->resetDebugging();
 
-        $this->assertArrayHasKey('price', $errors);
+        $this->assertArrayNotHasKey('price', $errors);
     }
 
     /**
