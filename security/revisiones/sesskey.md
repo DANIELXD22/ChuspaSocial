@@ -73,6 +73,54 @@ declarados, así que no hay entrada HTTP que los dispare.
 `src/index.php` es la única página del plugin y solo imprime el encabezado y el
 pie de Moodle: no lee datos ni escribe, por lo que no necesita sesskey.
 
+## Ejemplos de validación de sesskey
+
+Los siguientes ejemplos son patrones de referencia para nuevas páginas o puntos
+de entrada que modifiquen datos. En este plugin no se necesitan todavía porque
+los formularios y servicios web existentes delegan la comprobación en Moodle,
+pero deben aplicarse en cuanto se agregue una acción manual.
+
+### `require_sesskey()` en una acción que modifica datos
+
+`require_sesskey()` lee el parámetro `sesskey` de la petición y lanza una
+excepción si no coincide con la sesión actual. Debe ejecutarse antes de leer o
+modificar datos:
+
+    require_sesskey();
+
+    $postid = required_param('postid', PARAM_INT);
+    \local_chuspasocial\local\post_service::delete_post($postid);
+
+Este patrón es indispensable en acciones como eliminar o editar una
+publicación, crear o resolver un reporte, alternar un seguimiento o una
+reacción, o agregar un comentario.
+
+### `confirm_sesskey()` cuando se necesita evaluar el resultado
+
+`confirm_sesskey()` devuelve `true` o `false`, por lo que permite manejar el
+error de forma explícita. Si se usa, siempre hay que comprobar el valor devuelto
+y detener la acción cuando sea `false`:
+
+    if (!confirm_sesskey()) {
+        throw new \moodle_exception('invalidsesskey');
+    }
+
+    $reportid = required_param('reportid', PARAM_INT);
+    \local_chuspasocial\local\report_service::resolve_and_hide($reportid);
+
+### Escenarios donde la validación es indispensable
+
+- Cualquier petición HTTP que cree, edite, elimine o cambie el estado de un
+  dato.
+- Acciones disparadas desde enlaces, formularios o AJAX que requieran sesión
+  iniciada.
+- Operaciones que solo comprueban capacidades con `require_capability()`: la
+  capacidad autoriza la acción, pero no protege contra CSRF.
+- Formularios que no extiendan `moodleform`: en ese caso hay que llamar a
+  `require_sesskey()` o a `confirm_sesskey()` manualmente.
+- Servicios web de escritura: si no son servicios AJAX gestionados por Moodle,
+  el punto de entrada debe validar la sesskey.
+
 ## Conclusión
 
 No se encontró ninguna acción que modifique datos sin verificación de sesión:
