@@ -24,7 +24,7 @@ Las búsquedas se hicieron sobre todo `src/`:
 ## Acciones que modifican datos
 
 | Archivo | Línea | Acción | Estado |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | src/classes/form/post_form.php | 34 | Formulario de alta y edición de publicaciones. | OK: extiende `moodleform`, que agrega el campo oculto `sesskey` y llama a `confirm_sesskey()` al enviarse (formslib.php de Moodle, líneas 219 y 317). |
 | src/classes/form/listing_form.php | 16 | Formulario de alta de un anuncio del marketplace. | OK: extiende `moodleform` (misma verificación de sesskey). |
 | src/db/services.php | 32 | Servicio web `local_chuspasocial_toggle_follow`, `type => write`, `ajax => true`. | OK: Moodle llama a `require_sesskey()` antes de ejecutar los servicios web AJAX que requieren login (external_api.php de Moodle, líneas 216-223). |
@@ -40,7 +40,7 @@ y por eso Moodle exige la sesskey antes de ejecutarlo.
 ## Escrituras internas sin punto de entrada HTTP
 
 | Archivo | Línea | Acción | Estado |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | src/classes/local/post_service.php | 49 | `update_post()`: `$post->update()`. | No aplica dentro del servicio: no lee la petición; la verificación de sesskey corresponde al código que lo invoque (una página o un servicio web). |
 | src/classes/local/post_service.php | 103, 109, 123 | `delete_post()`: tres `delete_records` (comentarios, reacciones y publicación). | No aplica dentro del servicio: misma razón. |
 
