@@ -95,6 +95,24 @@ Este patrón es indispensable en acciones como eliminar o editar una
 publicación, crear o resolver un reporte, alternar un seguimiento o una
 reacción, o agregar un comentario.
 
+### Formularios
+
+Los formularios que extienden `moodleform` ya incluyen el campo `sesskey` y la
+validación al procesar el envío, así que no deben duplicar la llamada. En un
+formulario HTML manual hay que agregar el campo oculto y validarlo al recibir el
+POST:
+
+    <form method="post" action="eliminar.php">
+        <input type="hidden" name="sesskey" value="<?php echo sesskey(); ?>">
+        <input type="hidden" name="postid" value="<?php echo $postid; ?>">
+        <button type="submit">Eliminar</button>
+    </form>
+
+    require_sesskey();
+
+    $postid = required_param('postid', PARAM_INT);
+    \local_chuspasocial\local\post_service::delete_post($postid);
+
 ### `confirm_sesskey()` cuando se necesita evaluar el resultado
 
 `confirm_sesskey()` devuelve `true` o `false`, por lo que permite manejar el
