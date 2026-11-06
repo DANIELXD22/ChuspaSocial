@@ -2,11 +2,19 @@
 
 ## Propósito
 
-Este documento describe las razones válidas para reportar contenido en ChuspaSocial, el proceso de reporte que siguen los estudiantes y las acciones que pueden tomar los docentes moderadores.
+Este documento describe las razones válidas para reportar contenido ofensivo, spam o inapropiado en ChuspaSocial, el proceso de reporte que siguen los estudiantes y las acciones que pueden tomar los docentes moderadores.
+
+## Contenido que se puede reportar
+
+Un usuario puede reportar tres tipos de contenido (RF-029):
+
+- Publicaciones del muro.
+- Comentarios.
+- Anuncios de libros del Marketplace.
 
 ## Categorías de reporte
 
-Un estudiante puede reportar una publicación cuando considera que incurre en alguna de estas categorías:
+Al reportar, el usuario indica el motivo que mejor describe el problema:
 
 | Categoría | Descripción |
 |---|---|
@@ -16,26 +24,26 @@ Un estudiante puede reportar una publicación cuando considera que incurre en al
 
 ## Proceso de reporte
 
-1. El estudiante identifica una publicación que incumple las normas.
-2. Selecciona la opción de reportar en la publicación.
-3. Elige la categoría que mejor describe el motivo.
-4. Envía el reporte. La publicación sigue visible hasta que un moderador tome una decisión.
+1. El estudiante identifica una publicación, comentario o anuncio de libro que incumple las normas.
+2. Selecciona la opción de reportar.
+3. Indica el motivo eligiendo una de las categorías.
+4. Confirma el reporte. El sistema lo guarda y muestra un aviso de que fue registrado correctamente.
 
 ## Cola de moderación
 
-Todos los reportes enviados se agrupan en una cola de moderación a la que acceden los docentes con rol de moderador. Cada reporte muestra la publicación reportada, la categoría elegida y el estado del reporte (pendiente o resuelto). Los moderadores revisan los reportes pendientes y deciden qué acción tomar.
+Los reportes registrados quedan como reportes abiertos en la cola de moderación (RF-030). Los docentes moderadores acceden a esta cola, ven los reportes abiertos pendientes de revisión y pueden seleccionar cada uno para revisar su información antes de decidir.
 
 ## Facultades del moderador
 
-El docente moderador puede:
+Al revisar un reporte, el docente moderador puede:
 
-- **Ocultar el post:** la publicación deja de ser visible para los demás usuarios de la plataforma. El contenido no se elimina, por lo que puede ser revisado o restaurado.
-- **Descartar el reporte:** el moderador considera que la publicación no incumple las normas. El post sigue visible con normalidad y el reporte pasa a estado resuelto.
+- **Ocultar el contenido (RF-031):** el contenido reportado deja de mostrarse a los usuarios. No se elimina, por lo que se conserva para su revisión.
+- **Descartar el reporte:** el moderador determina que el contenido no incumple las normas. El contenido sigue visible con normalidad y el reporte sale de la cola de reportes abiertos.
 
-## Impacto en la visibilidad del post
+## Impacto en la visibilidad del contenido
 
-| Acción | Visibilidad del post | Estado del reporte |
+| Situación | Visibilidad del contenido | Estado del reporte |
 |---|---|---|
-| Sin decisión | Visible | Pendiente |
-| Ocultar post | Oculto | Resuelto |
-| Descartar reporte | Visible | Resuelto |
+| Reporte recién registrado | Visible | Abierto |
+| El moderador oculta el contenido | Oculto para los usuarios | Resuelto |
+| El moderador descarta el reporte | Visible | Resuelto |
