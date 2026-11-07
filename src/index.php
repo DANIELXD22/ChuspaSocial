@@ -40,6 +40,7 @@ $PAGE->set_context($context);
 $PAGE->set_url(new moodle_url('/local/chuspasocial/index.php'));
 $PAGE->set_title(get_string('pluginname', 'local_chuspasocial'));
 $PAGE->set_heading(get_string('pluginname', 'local_chuspasocial'));
+$PAGE->requires->js_call_amd('local_chuspasocial/report', 'init');
 
 // Get the posts of the general feed and turn each one into a plain record.
 $records = [];
