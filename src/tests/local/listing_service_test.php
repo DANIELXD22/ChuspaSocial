@@ -477,5 +477,66 @@ class listing_service_test extends advanced_testcase {
         $this->assertFalse(listing_service::can_manage($listing, (int) $other->id));
     }
     
-}
+    /**
+     * Comprueba que el propietario puede marcar su anuncio como vendido.
+     *
+     * @covers \local_chuspasocial\local\listing_service::mark_sold
+     */
+    public function test_mark_sold_as_author(): void {
+        global $DB;
 
+        $listingid = $this->crear_anuncio('Libro de prueba', 'Autor');
+
+        $authorid = $DB->get_field(
+            'local_chuspasocial_listing',
+            'userid',
+            ['id' => $listingid],
+            MUST_EXIST
+        );
+
+        $this->setUser((int) $authorid);
+
+        listing_service::mark_sold($listingid);
+
+        $this->assertSame(
+            'sold',
+            $DB->get_field(
+                'local_chuspasocial_listing',
+                'status',
+                ['id' => $listingid],
+                MUST_EXIST
+            )
+        );
+    }
+
+    /**
+     * Comprueba que otro usuario no puede marcar un anuncio como vendido.
+     *
+     * @covers \local_chuspasocial\local\listing_service::mark_sold
+     */
+    public function test_mark_sold_as_other_user(): void {
+        global $DB;
+
+        $listingid = $this->crear_anuncio('Libro de prueba', 'Autor');
+        $otheruser = $this->getDataGenerator()->create_user();
+
+        $this->setUser($otheruser);
+
+        try {
+            listing_service::mark_sold($listingid);
+            $this->fail('Se esperaba una excepcion de permisos.');
+        } catch (\moodle_exception $exception) {
+            $this->assertSame('nopermissions', $exception->errorcode);
+        }
+
+        $this->assertSame(
+            'available',
+            $DB->get_field(
+                'local_chuspasocial_listing',
+                'status',
+                ['id' => $listingid],
+                MUST_EXIST
+            )
+        );
+    }
+}
