@@ -87,6 +87,7 @@ class provider implements
             'description' => 'privacy:metadata:listing:description',
             'price' => 'privacy:metadata:listing:price',
             'externalcontact' => 'privacy:metadata:listing:externalcontact',
+            'category' => 'privacy:metadata:listing:category',
             'status' => 'privacy:metadata:listing:status',
             'timecreated' => 'privacy:metadata:listing:timecreated',
             'timemodified' => 'privacy:metadata:listing:timemodified',
