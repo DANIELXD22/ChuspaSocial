@@ -539,4 +539,126 @@ class listing_service_test extends advanced_testcase {
             )
         );
     }
+
+    /**
+     * Un usuario con permiso crea un anuncio válido: se guarda a su nombre,
+     * ignora los campos protegidos y dispara el evento listing_created.
+     *
+     * @covers \local_chuspasocial\local\listing_service::create_listing
+     */
+    public function test_create_listing_valido(): void {
+        global $DB;
+
+        set_config('enablemarketplace', 1, 'local_chuspasocial');
+        $user = $this->getDataGenerator()->create_user();
+        $this->setUser($user);
+
+        $sink = $this->redirectEvents();
+        $listing = listing_service::create_listing((object) [
+            'title' => 'Cálculo I',
+            'author' => 'Stewart',
+            'price' => 45.5,
+            'userid' => $user->id + 100,
+        ]);
+        $events = $sink->get_events();
+        $sink->close();
+
+        $this->assertGreaterThan(0, $listing->get('id'));
+        $this->assertEquals($user->id, $listing->get('userid'));
+
+        $record = $DB->get_record('local_chuspasocial_listing', ['id' => $listing->get('id')], '*', MUST_EXIST);
+        $this->assertSame('Cálculo I', $record->title);
+        $this->assertSame('Stewart', $record->author);
+        $this->assertEquals(45.5, (float) $record->price);
+        $this->assertEquals($user->id, $record->userid);
+        $this->assertSame('available', $record->status);
+
+        $this->assertCount(1, $events);
+        $this->assertInstanceOf(\local_chuspasocial\event\listing_created::class, $events[0]);
+        $this->assertEquals($listing->get('id'), $events[0]->objectid);
+    }
+
+    /**
+     * Un precio negativo se rechaza y no se crea ningún anuncio.
+     *
+     * @covers \local_chuspasocial\local\listing_service::create_listing
+     */
+    public function test_create_listing_precio_negativo(): void {
+        global $DB;
+
+        set_config('enablemarketplace', 1, 'local_chuspasocial');
+        $this->setUser($this->getDataGenerator()->create_user());
+
+        try {
+            listing_service::create_listing((object) [
+                'title' => 'Física',
+                'author' => 'Serway',
+                'price' => -10,
+            ]);
+            $this->fail('Se esperaba una excepcion por precio negativo.');
+        } catch (\invalid_parameter_exception $exception) {
+            $this->assertStringContainsString('price', $exception->debuginfo);
+        }
+
+        $this->assertSame(0, $DB->count_records('local_chuspasocial_listing'));
+    }
+
+    /**
+     * Con el marketplace deshabilitado no se puede crear un anuncio.
+     *
+     * @covers \local_chuspasocial\local\listing_service::create_listing
+     */
+    public function test_create_listing_marketplace_deshabilitado(): void {
+        global $DB;
+
+        set_config('enablemarketplace', 0, 'local_chuspasocial');
+        $this->setUser($this->getDataGenerator()->create_user());
+
+        try {
+            listing_service::create_listing((object) [
+                'title' => 'Química',
+                'author' => 'Chang',
+                'price' => 20,
+            ]);
+            $this->fail('Se esperaba una excepcion por marketplace deshabilitado.');
+        } catch (\moodle_exception $exception) {
+            $this->assertSame('nopermissions', $exception->errorcode);
+        }
+
+        $this->assertSame(0, $DB->count_records('local_chuspasocial_listing'));
+    }
+
+    /**
+     * Un usuario sin la capacidad createlisting no puede crear un anuncio.
+     *
+     * @covers \local_chuspasocial\local\listing_service::create_listing
+     */
+    public function test_create_listing_sin_capacidad(): void {
+        global $DB;
+
+        set_config('enablemarketplace', 1, 'local_chuspasocial');
+        $user = $this->getDataGenerator()->create_user();
+
+        $roleid = $DB->get_field('role', 'id', ['shortname' => 'user'], MUST_EXIST);
+        assign_capability(
+            'local/chuspasocial:createlisting',
+            CAP_PROHIBIT,
+            $roleid,
+            \context_system::instance(),
+            true
+        );
+        $this->setUser($user);
+
+        $this->expectException(\required_capability_exception::class);
+
+        try {
+            listing_service::create_listing((object) [
+                'title' => 'Biología',
+                'author' => 'Campbell',
+                'price' => 30,
+            ]);
+        } finally {
+            $this->assertSame(0, $DB->count_records('local_chuspasocial_listing'));
+        }
+    }
 }
